@@ -1,87 +1,53 @@
-import { useState } from "react";
+import OTPComponent from "../components/OTPComponent";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import toast from "react-hot-toast";
 
-interface Pin {
-  one: string;
-  two: string;
-  three: string;
-  four: string;
-  five: string;
-  six: string;
+interface OTP {
+  pin: string;
 }
 
 function OTPvalidation() {
-  const [pin, setPin] = useState<Pin>({
-    one: "",
-    two: "",
-    three: "",
-    four: "",
-    five: "",
-    six: "",
-  });
-  const handleChange = (index: string) => {
-    if (index) {
-      setPin({
-        ...pin,
-        one: "1",
-        two: "2",
-        three: "3",
-        four: "4",
-        five: "5",
-        six: "6",
-      });
+  const length = 6;
+  const [otp, setOTP] = useLocalStorage<OTP>("otp", { pin: "" } as OTP);
+
+  const generateOTP = (len: number) => {
+    let pin = "";
+    for (let i = 0; i < len; i++) {
+      pin += Math.floor(Math.random() * 10);
+    }
+    setOTP({ ...otp, pin: pin });
+  };
+
+  const handleOTP = (pin: string) => {
+    if (pin.length === length) {
+      if (pin === otp.pin) {
+        setOTP({ ...otp, pin: "" });
+        toast.success("Verification Complete !");
+      } else {
+        setOTP({ ...otp, pin: "" });
+        toast.error("Invalid OTP !");
+      }
     }
   };
   return (
-    <div className="w-full h-svh flex justify-center items-center">
-      <div className="gap-2 rounded p-1 grid grid-cols-6 h-[60px] lg:w-[400px] w-[300px] bg-black">
-        <input
-          minLength={1}
-          maxLength={1}
-          type="text"
-          className="rounded border border-black p-2"
-          value={pin.one}
-          onChange={() => handleChange("one")}
-        />
-        <input
-          minLength={1}
-          maxLength={1}
-          type="text"
-          className="rounded border border-black p-2"
-          value={pin.two}
-          onChange={() => handleChange("two")}
-        />
-        <input
-          minLength={1}
-          maxLength={1}
-          type="text"
-          className="rounded border border-black p-2"
-          value={pin.three}
-          onChange={() => handleChange("three")}
-        />
-        <input
-          minLength={1}
-          maxLength={1}
-          type="text"
-          className="rounded border border-black p-2"
-          value={pin.four}
-          onChange={() => handleChange("four")}
-        />
-        <input
-          minLength={1}
-          maxLength={1}
-          type="text"
-          className="rounded border border-black p-2"
-          value={pin.five}
-          onChange={() => handleChange("five")}
-        />
-        <input
-          minLength={1}
-          maxLength={1}
-          type="text"
-          className="rounded border border-black p-2"
-          value={pin.six}
-          onChange={() => handleChange("six")}
-        />
+    <div className="h-svh w-full flex justify-center items-center">
+      <div className="flex flex-col justify-center items-center gap-4">
+        {otp.pin.length > 1 ? (
+          <h1 className="text-xl">Your OTP : {otp.pin}</h1>
+        ) : (
+          ""
+        )}
+        <button
+          onClick={() => generateOTP(length)}
+          className="p-2 bg-black text-white rounded"
+        >
+          Generate OTP
+        </button>
+        {otp.pin.length > 1 ? (
+          <OTPComponent length={length} handleOTP={handleOTP} />
+        ) : (
+          <h1 className="text-xl">Click on above button to generate OTP</h1>
+        )}
       </div>
     </div>
   );
