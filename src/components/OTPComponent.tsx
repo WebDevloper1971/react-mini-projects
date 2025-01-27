@@ -45,6 +45,7 @@ function OTPComponent({ length, handleOTP }: OTPComponentProps) {
     <div className="flex gap-2 max-w-xs lg:max-w-sm">
       {otp.map((data, index) => (
         <input
+          id={data + index}
           type="text"
           key={index}
           minLength={1}
